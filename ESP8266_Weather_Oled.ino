@@ -12,6 +12,9 @@
   location_name=Hamburg
   location_id=xxxxx                 from openweathermap
   debuging=false/true               serial debuging informations
+  invert_display=false/true
+  flip_display=false/true
+  display_mode=0-2
   config -get                       show all stored variable on serial port
   ip -get                           local IP
 
@@ -52,6 +55,9 @@ uint8_t current_page = 0;
 const uint8_t max_pages = MAX_FORECASTS;
 const uint8_t max_values_on_page = 14;
 boolean show_next_page = false;
+boolean flip_display;
+boolean invert_display;
+uint8_t display_mode;
 
 // Display rows
 uint8_t xd1 = 0;
@@ -86,6 +92,9 @@ String city_name = "?";
 const int eeprom_size = 256 ; //Size can be anywhere between 4 and 4096 bytes
 
 int debuging_eeprom_address = 0;        //boolean value
+int flip_display_eeprom_address = 1;    //boolean value
+int invert_display_eeprom_address = 2;  //boolean value
+int display_mode_eeprom_address = 6;    //int value
 int ssid_eeprom_address = 16;           //string max 22
 int password_eeprom_address = 40;       //string max 32
 int location_id_eeprom_address = 72;    //string max 32
@@ -96,7 +105,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V0.9.2-beta";
+String version_ = "V1.0-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -116,8 +125,8 @@ void setup() {
   delay(200);
 
   display.init();
-  display.flipScreenVertically();//180grad
-  //display.invertDisplay();
+  if (flip_display == true)display.flipScreenVertically();//180grad
+  if (invert_display == true)display.invertDisplay();//B/W > W/B
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_CENTER);
   display.setFont(ArialMT_Plain_10);
@@ -292,7 +301,9 @@ void display_weather(uint8_t y) {
     String dir = degrees_to_direction(weather_values[forcast_index][7]);
     String bft = ms_to_beaufort(weather_values[forcast_index][6]);
     display.drawString(xd1, yd1, dir + bft);//Wind
-    display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]);//Rain
+    if (display_mode == 0)display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]); //Rain
+    if (display_mode == 1)display.drawString(xd1, yd2, "Hmy " + weather_values[forcast_index][4] + einheiten[4]); //Humidity
+    if (display_mode == 2)display.drawString(xd1, yd2, weather_values[forcast_index][5] + einheiten[5]);//Pressure
     String description = weather_values[forcast_index][12];
     int length = description.length();
     if (length > 15) {
@@ -352,7 +363,9 @@ void display_weather(uint8_t y) {
     String dir = degrees_to_direction(weather_values[forcast_index][7]);
     String bft = ms_to_beaufort(weather_values[forcast_index][6]);
     display.drawString(xd1, yd1, dir + bft);//Wind
-    display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]);//Rain
+    if (display_mode == 0)display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]); //Rain
+    if (display_mode == 1)display.drawString(xd1, yd2, "Hmy " + weather_values[forcast_index][4] + einheiten[4]);//Humidity
+    if (display_mode == 2)display.drawString(xd1, yd2, weather_values[forcast_index][5] + einheiten[5]);//Pressure
     String description = weather_values[forcast_index][12];
     int length = description.length();
     if (length > 15) {
@@ -412,7 +425,9 @@ void display_weather(uint8_t y) {
     String dir = degrees_to_direction(weather_values[forcast_index][7]);
     String bft = ms_to_beaufort(weather_values[forcast_index][6]);
     display.drawString(xd1, yd1, dir + bft);//Wind
-    display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]);//Rain
+    if (display_mode == 0)display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]); //Rain
+    if (display_mode == 1)display.drawString(xd1, yd2, "Hmy " + weather_values[forcast_index][4] + einheiten[4]);//Humidity
+    if (display_mode == 2)display.drawString(xd1, yd2, weather_values[forcast_index][5] + einheiten[5]);//Pressure
     String description = weather_values[forcast_index][12];
     int length = description.length();
     if (length > 15) {
@@ -472,7 +487,9 @@ void display_weather(uint8_t y) {
     String dir = degrees_to_direction(weather_values[forcast_index][7]);
     String bft = ms_to_beaufort(weather_values[forcast_index][6]);
     display.drawString(xd1, yd1, dir + bft);//Wind
-    display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]);//Rain
+    if (display_mode == 0)display.drawString(xd1, yd2, "/// " + weather_values[forcast_index][9] + einheiten[9]); //Rain
+    if (display_mode == 1)display.drawString(xd1, yd2, "Hmy " + weather_values[forcast_index][4] + einheiten[4]);//Humidity
+    if (display_mode == 2)display.drawString(xd1, yd2, weather_values[forcast_index][5] + einheiten[5]);//Pressure
     String description = weather_values[forcast_index][12];
     int length = description.length();
     if (length > 15) {
@@ -669,6 +686,15 @@ void load_config() {
 
   city_name = read_eeprom_string(location_name_eeprom_address);
   Serial.println("location_name=" + String(city_name));
+
+  flip_display = read_eeprom_bool(flip_display_eeprom_address);
+  Serial.println("flip_display=" + String(flip_display));
+
+  invert_display = read_eeprom_bool(invert_display_eeprom_address);
+  Serial.println("invert_display=" + String(invert_display));
+
+  display_mode = read_eeprom_int(display_mode_eeprom_address);
+  Serial.println("display_mode=" + String(display_mode));
 }
 //--------------------------------------------------------------------------
 void lookup_commands() {
@@ -726,6 +752,50 @@ void lookup_commands() {
 
   if (serial_line_0.substring(0, 11) == F("config -get")) {
     load_config();
+  }
+
+  if (serial_line_0.substring(0, 13) == F("flip_display=")) {
+    if (serial_line_0.substring(13, length_) == "false") {
+      write_eeprom_bool(flip_display_eeprom_address, false);
+      Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
+    if (serial_line_0.substring(13, length_) == "true") {
+      write_eeprom_bool(flip_display_eeprom_address, true);
+      Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
+  }
+
+  if (serial_line_0.substring(0, 15) == F("invert_display=")) {
+    if (serial_line_0.substring(15, length_) == "false") {
+      write_eeprom_bool(invert_display_eeprom_address, false);
+      Serial.println(serial_line_0.substring(0, 15) + serial_line_0.substring(15, length_));
+      load_config();
+    }
+    if (serial_line_0.substring(15, length_) == "true") {
+      write_eeprom_bool(invert_display_eeprom_address, true);
+      Serial.println(serial_line_0.substring(0, 15) + serial_line_0.substring(15, length_));
+      load_config();
+    }
+  }
+
+  if (serial_line_0.substring(0, 13) == F("display_mode=")) {
+    if (serial_line_0.substring(13, length_) == "0") {
+      write_eeprom_int(display_mode_eeprom_address, 0);
+      Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
+    if (serial_line_0.substring(13, length_) == "1") {
+      write_eeprom_int(display_mode_eeprom_address, 1);
+      Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
+    if (serial_line_0.substring(13, length_) == "2") {
+      write_eeprom_int(display_mode_eeprom_address, 2);
+      Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
   }
 }
 //--------------------------------------------------------------------------
