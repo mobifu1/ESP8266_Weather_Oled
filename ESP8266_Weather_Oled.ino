@@ -15,6 +15,8 @@
   invert_display=false/true
   flip_display=false/true
   display_mode=0-2
+  requ_hour_1=12 > 12:00            0/3/6/9/12/15/18/21
+  requ_hour_2=21 > 21:00            0/3/6/9/12/15/18/21
   config -get                       show all stored variable on serial port
   ip -get                           local IP
 
@@ -49,6 +51,8 @@ String OPEN_WEATHER_MAP_LANGUAGE = "de";
 boolean IS_METRIC = true;
 const uint8_t MAX_FORECASTS = 7;
 boolean get_weather = false;
+uint8_t requ_hour_1; //  0 = 00:00
+uint8_t requ_hour_2; // 12 = 12:00
 
 // Display pages
 uint8_t current_page = 0;
@@ -95,6 +99,8 @@ int debuging_eeprom_address = 0;        //boolean value
 int flip_display_eeprom_address = 1;    //boolean value
 int invert_display_eeprom_address = 2;  //boolean value
 int display_mode_eeprom_address = 6;    //int value
+int requ_hour_1_eeprom_address = 8;     //int value
+int requ_hour_2_eeprom_address = 10;    //int value
 int ssid_eeprom_address = 16;           //string max 22
 int password_eeprom_address = 40;       //string max 32
 int location_id_eeprom_address = 72;    //string max 32
@@ -105,7 +111,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0-r";
+String version_ = "V1.0.1-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -181,7 +187,7 @@ void get_weather_forecasts() {
   OpenWeatherMapForecastData data[MAX_FORECASTS];
   client.setMetric(IS_METRIC);
   client.setLanguage(OPEN_WEATHER_MAP_LANGUAGE);
-  uint8_t allowedHours[] = {0, 12};
+  uint8_t allowedHours[] = {requ_hour_1, requ_hour_2};
   client.setAllowedHours(allowedHours, 2);
   uint8_t foundForecasts = client.updateForecastsById(data, OPEN_WEATHER_MAP_APP_ID, OPEN_WEATHER_MAP_LOCATION_ID, MAX_FORECASTS);
 
@@ -664,6 +670,7 @@ boolean read_eeprom_bool(int address) {
 //--------------------------------------------------------------------------
 void load_config() {
 
+  Serial.println();
   Serial.println(F("config load:"));
 
   debuging = read_eeprom_bool(debuging_eeprom_address);
@@ -695,6 +702,12 @@ void load_config() {
 
   display_mode = read_eeprom_int(display_mode_eeprom_address);
   Serial.println("display_mode=" + String(display_mode));
+
+  requ_hour_1 = read_eeprom_int(requ_hour_1_eeprom_address);
+  Serial.println("requ_hour_1=" + String(requ_hour_1));
+
+  requ_hour_2 = read_eeprom_int(requ_hour_2_eeprom_address);
+  Serial.println("requ_hour_2=" + String(requ_hour_2));
 }
 //--------------------------------------------------------------------------
 void lookup_commands() {
@@ -794,6 +807,26 @@ void lookup_commands() {
     if (serial_line_0.substring(13, length_) == "2") {
       write_eeprom_int(display_mode_eeprom_address, 2);
       Serial.println(serial_line_0.substring(0, 13) + serial_line_0.substring(13, length_));
+      load_config();
+    }
+  }
+
+  if (serial_line_0.substring(0, 12) == F("requ_hour_1=")) {
+    String value = serial_line_0.substring(12, length_);
+    int value_int = value.toInt();
+    if (value_int >= 0 && value_int <= 23) {
+      write_eeprom_int(requ_hour_1_eeprom_address, value_int);
+      Serial.println(serial_line_0.substring(0, 12) + serial_line_0.substring(12, length_));
+      load_config();
+    }
+  }
+
+  if (serial_line_0.substring(0, 12) == F("requ_hour_2=")) {
+    String value = serial_line_0.substring(12, length_);
+    int value_int = value.toInt();
+    if (value_int >= 0 && value_int <= 23) {
+      write_eeprom_int(requ_hour_2_eeprom_address, value_int);
+      Serial.println(serial_line_0.substring(0, 12) + serial_line_0.substring(12, length_));
       load_config();
     }
   }
