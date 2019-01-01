@@ -96,7 +96,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V0.9.1-beta";
+String version_ = "V0.9.2-beta";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -492,24 +492,24 @@ void display_weather(uint8_t y) {
 //--------------------------------------------------------------------------
 void draw_weather_icon(String icon_id) {
 
-  if (icon_id == "01d") display.drawXbm(0, 5, icon_width, icon_height, meteo_01d_bits);
-  if (icon_id == "01n") display.drawXbm(0, 5, icon_width, icon_height, meteo_01n_bits);
-  if (icon_id == "02d") display.drawXbm(0, 5, icon_width, icon_height, meteo_02d_bits);
-  if (icon_id == "02n") display.drawXbm(0, 5, icon_width, icon_height, meteo_02n_bits);
-  if (icon_id == "03d") display.drawXbm(0, 5, icon_width, icon_height, meteo_03d_bits);
-  if (icon_id == "03n") display.drawXbm(0, 5, icon_width, icon_height, meteo_03n_bits);
-  if (icon_id == "04d") display.drawXbm(0, 5, icon_width, icon_height, meteo_04d_bits);
-  if (icon_id == "04n") display.drawXbm(0, 5, icon_width, icon_height, meteo_04n_bits);
-  if (icon_id == "09d") display.drawXbm(0, 5, icon_width, icon_height, meteo_09d_bits);
-  if (icon_id == "09n") display.drawXbm(0, 5, icon_width, icon_height, meteo_09n_bits);
-  if (icon_id == "10d") display.drawXbm(0, 5, icon_width, icon_height, meteo_10d_bits);
-  if (icon_id == "10n") display.drawXbm(0, 5, icon_width, icon_height, meteo_10n_bits);
-  if (icon_id == "11d") display.drawXbm(0, 5, icon_width, icon_height, meteo_11d_bits);
-  if (icon_id == "11n") display.drawXbm(0, 5, icon_width, icon_height, meteo_11n_bits);
-  if (icon_id == "13d") display.drawXbm(0, 5, icon_width, icon_height, meteo_13d_bits);
-  if (icon_id == "13n") display.drawXbm(0, 5, icon_width, icon_height, meteo_13n_bits);
-  if (icon_id == "50d") display.drawXbm(0, 5, icon_width, icon_height, meteo_50d_bits);
-  if (icon_id == "50n") display.drawXbm(0, 5, icon_width, icon_height, meteo_50n_bits);
+  if (icon_id == "01d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_01d_bits);
+  if (icon_id == "01n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_01n_bits);
+  if (icon_id == "02d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_02d_bits);
+  if (icon_id == "02n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_02n_bits);
+  if (icon_id == "03d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_03d_bits);
+  if (icon_id == "03n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_03n_bits);
+  if (icon_id == "04d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_04d_bits);
+  if (icon_id == "04n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_04n_bits);
+  if (icon_id == "09d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_09d_bits);
+  if (icon_id == "09n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_09n_bits);
+  if (icon_id == "10d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_10d_bits);
+  if (icon_id == "10n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_10n_bits);
+  if (icon_id == "11d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_11d_bits);
+  if (icon_id == "11n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_11n_bits);
+  if (icon_id == "13d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_13d_bits);
+  if (icon_id == "13n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_13n_bits);
+  if (icon_id == "50d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_50d_bits);
+  if (icon_id == "50n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_50n_bits);
 }
 //--------------------------------------------------------------------------
 void timer_0_event() {
