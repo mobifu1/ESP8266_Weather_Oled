@@ -62,6 +62,7 @@ boolean show_next_page = false;
 boolean flip_display;
 boolean invert_display;
 uint8_t display_mode;
+boolean weather_alert;
 
 // Display rows
 uint8_t xd1 = 0;
@@ -111,7 +112,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0.1-r";
+String version_ = "V1.0.2-beta";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -207,6 +208,14 @@ void get_weather_forecasts() {
     weather_values[i][11] = String(data[i].iconMeteoCon);
     weather_values[i][12] = String(data[i].description);
     weather_values[i][13] = String(data[i].observationTimeText);
+
+    weather_alert = false;
+    if (data[i].temp > 36) weather_alert = true;//°C
+    if (data[i].windSpeed > 25) weather_alert = true;//m/s = 10 Beaufort
+    if (data[i].pressureGroundLevel < 780) weather_alert = true;//Low
+    if (weather_alert == true) {
+      if (debuging) Serial.println("Alert:");
+    }
   }
 }
 //--------------------------------------------------------------------------
@@ -216,10 +225,6 @@ String ms_to_beaufort(String speed_) {
   v = v / 0.836;
   int beaufort = int(pow(v , 0.666));
   String beaufort_string = (String(beaufort) + " Bft");
-
-  if (beaufort >= 10 && beaufort <= 12) {
-    beaufort_string += " !!";
-  }
 
   return beaufort_string;
 }
@@ -262,6 +267,7 @@ void display_weather(uint8_t y) {
       Serial.println();
     }
   }
+
   int forcast_index;
 
   if (y == 0) {
@@ -511,6 +517,20 @@ void display_weather(uint8_t y) {
     //----------------------------------
     display.display();
   }
+
+  if (y == 8) {//Extra Alert Page
+
+    display.clear();
+    //----------------------------------icon left:
+    draw_weather_icon("alert");
+    //----------------------------------text right
+    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.setFont(ArialMT_Plain_10);
+    display.drawString(xd5, yd1, city_name);//City
+    display.setFont(ArialMT_Plain_24);
+    display.drawString(xd5, yd11, "Alert"); //Alert
+    display.display();
+  }
 }
 //--------------------------------------------------------------------------
 void draw_weather_icon(String icon_id) {
@@ -533,6 +553,7 @@ void draw_weather_icon(String icon_id) {
   if (icon_id == "13n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_13n_bits);
   if (icon_id == "50d") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_50d_bits);
   if (icon_id == "50n") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_50n_bits);
+  if (icon_id == "alert") display.drawXbm(xd1, yd1, icon_width, icon_height, meteo_alert_bits);
 }
 //--------------------------------------------------------------------------
 void timer_0_event() {
@@ -543,8 +564,12 @@ void timer_0_event() {
 //--------------------------------------------------------------------------
 void timer_1_event() {
 
+  int extra_page;
+  if (weather_alert == true)extra_page = 1;
+  if (weather_alert == false)extra_page = 0;
+
   current_page ++;
-  if (current_page == max_pages + 1)current_page = 0;
+  if (current_page == max_pages + 1 + extra_page)current_page = 0;
   if (debuging) Serial.println("Page:" + String(current_page));
   show_next_page = true;
 }
