@@ -112,7 +112,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0.2-beta";
+String version_ = "V1.0.2-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -212,7 +212,7 @@ void get_weather_forecasts() {
     weather_alert = false;
     if (data[i].temp > 36) weather_alert = true;//°C
     if (data[i].windSpeed > 25) weather_alert = true;//m/s = 10 Beaufort
-    if (data[i].pressureGroundLevel < 780) weather_alert = true;//Low
+    if (data[i].pressureGroundLevel < 985) weather_alert = true;//Low
     if (weather_alert == true) {
       if (debuging) Serial.println("Alert:");
     }
