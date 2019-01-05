@@ -14,7 +14,8 @@
   debuging=false/true               serial debuging informations
   invert_display=false/true
   flip_display=false/true
-  display_mode=0-2
+  brightness_display=0-100%
+  display_mode=0-2                  show different weather values
   requ_hour_1=12 > 12:00            0/3/6/9/12/15/18/21
   requ_hour_2=21 > 21:00            0/3/6/9/12/15/18/21
   config -get                       show all stored variable on serial port
@@ -61,6 +62,7 @@ const uint8_t max_values_on_page = 14;
 boolean show_next_page = false;
 boolean flip_display;
 boolean invert_display;
+uint8_t brightness_display;
 uint8_t display_mode;
 boolean weather_alert;
 
@@ -96,23 +98,24 @@ String city_name = "?";
 // EEprom statements
 const int eeprom_size = 256 ; //Size can be anywhere between 4 and 4096 bytes
 
-int debuging_eeprom_address = 0;        //boolean value
-int flip_display_eeprom_address = 1;    //boolean value
-int invert_display_eeprom_address = 2;  //boolean value
-int display_mode_eeprom_address = 6;    //int value
-int requ_hour_1_eeprom_address = 8;     //int value
-int requ_hour_2_eeprom_address = 10;    //int value
-int ssid_eeprom_address = 16;           //string max 22
-int password_eeprom_address = 40;       //string max 32
-int location_id_eeprom_address = 72;    //string max 32
-int location_name_eeprom_address = 104; //string max 32
-int api_key_eeprom_address = 136;       //string max 32
+int debuging_eeprom_address = 0;            //boolean value
+int flip_display_eeprom_address = 1;        //boolean value
+int invert_display_eeprom_address = 2;      //boolean value
+int display_mode_eeprom_address = 6;        //int value
+int requ_hour_1_eeprom_address = 8;         //int value
+int requ_hour_2_eeprom_address = 10;        //int value
+int brightness_display_eeprom_address = 12; //int value
+int ssid_eeprom_address = 16;               //string max 22
+int password_eeprom_address = 40;           //string max 32
+int location_id_eeprom_address = 72;        //string max 32
+int location_name_eeprom_address = 104;     //string max 32
+int api_key_eeprom_address = 136;           //string max 32
 
 String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0.2-r";
+String version_ = "V1.0.3-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -132,8 +135,9 @@ void setup() {
   delay(200);
 
   display.init();
-  if (flip_display == true)display.flipScreenVertically();//180grad
-  if (invert_display == true)display.invertDisplay();//B/W > W/B
+  if (flip_display == true)display.flipScreenVertically(); //180grad
+  if (invert_display == true)display.invertDisplay();      //B/W > W/B
+  display.setBrightness(brightness_display);               //0-100%
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_CENTER);
   display.setFont(ArialMT_Plain_10);
@@ -725,6 +729,10 @@ void load_config() {
   invert_display = read_eeprom_bool(invert_display_eeprom_address);
   Serial.println("invert_display=" + String(invert_display));
 
+  brightness_display = read_eeprom_int(brightness_display_eeprom_address);
+  display.setBrightness(brightness_display);
+  Serial.println("brightness_display=" + String(brightness_display));
+
   display_mode = read_eeprom_int(display_mode_eeprom_address);
   Serial.println("display_mode=" + String(display_mode));
 
@@ -814,6 +822,17 @@ void lookup_commands() {
     if (serial_line_0.substring(15, length_) == "true") {
       write_eeprom_bool(invert_display_eeprom_address, true);
       Serial.println(serial_line_0.substring(0, 15) + serial_line_0.substring(15, length_));
+      load_config();
+    }
+  }
+
+  if (serial_line_0.substring(0, 19) == F("brightness_display=")) {
+    String value = serial_line_0.substring(19, length_);
+    int value_int = value.toInt();
+    if (value_int >= 0 && value_int <= 100) {
+      value_int = int(float(value_int) * 1.28);
+      write_eeprom_int(brightness_display_eeprom_address, value_int);
+      Serial.println(serial_line_0.substring(0, 19) + serial_line_0.substring(19, length_));
       load_config();
     }
   }
