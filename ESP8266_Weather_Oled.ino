@@ -115,7 +115,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0.3-r";
+String version_ = "V1.0.4-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -215,6 +215,8 @@ void get_weather_forecasts() {
 
     weather_alert = false;
     if (data[i].temp > 36) weather_alert = true;//°C
+    if (data[i].tempMax > 36) weather_alert = true;//°C
+    if (data[i].tempMin < -9) weather_alert = true; //°C
     if (data[i].windSpeed > 25) weather_alert = true;//m/s = 10 Beaufort
     if (data[i].pressureGroundLevel < 985) weather_alert = true;//Low
     if (weather_alert == true) {
@@ -273,6 +275,9 @@ void display_weather(uint8_t y) {
   }
 
   int forcast_index;
+  String alert_string;
+  if (weather_alert == true) alert_string = "! ";
+  if (weather_alert == false) alert_string = "";
 
   if (y == 0) {
 
@@ -285,7 +290,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]); //Temp
     //----------------------------------text mid
@@ -329,7 +334,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]);//Temp
     //----------------------------------
@@ -347,7 +352,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]); //Temp
     //----------------------------------text mid
@@ -391,7 +396,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]);//Temp
     //----------------------------------
@@ -409,7 +414,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]); //Temp
     //----------------------------------text mid
@@ -453,7 +458,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]);//Temp
     //----------------------------------
@@ -471,7 +476,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]); //Temp
     //----------------------------------text mid
@@ -515,7 +520,7 @@ void display_weather(uint8_t y) {
     //----------------------------------text right
     display.setTextAlignment(TEXT_ALIGN_RIGHT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(xd5, yd1, city_name);//City
+    display.drawString(xd5, yd1, alert_string + city_name); //City
     display.setFont(ArialMT_Plain_24);
     display.drawString(xd5, yd11, weather_values[forcast_index][1] + einheiten[1]);//Temp
     //----------------------------------
@@ -700,6 +705,7 @@ boolean read_eeprom_bool(int address) {
 void load_config() {
 
   Serial.println();
+  Serial.println(version_);
   Serial.println(F("config load:"));
 
   debuging = read_eeprom_bool(debuging_eeprom_address);
