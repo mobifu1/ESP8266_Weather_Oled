@@ -65,6 +65,7 @@ boolean invert_display;
 uint8_t brightness_display;
 uint8_t display_mode;
 boolean weather_alert;
+String alert_name = "";
 
 // Display rows
 uint8_t xd1 = 0;
@@ -115,7 +116,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.0.4-r";
+String version_ = "V1.1.0-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -214,13 +215,30 @@ void get_weather_forecasts() {
     weather_values[i][13] = String(data[i].observationTimeText);
 
     weather_alert = false;
-    if (data[i].temp > 36) weather_alert = true;//°C
-    if (data[i].tempMax > 36) weather_alert = true;//°C
-    if (data[i].tempMin < -9) weather_alert = true; //°C
-    if (data[i].windSpeed > 25) weather_alert = true;//m/s = 10 Beaufort
-    if (data[i].pressureGroundLevel < 985) weather_alert = true;//Low
+    alert_name = "";
+
+    if (data[i].temp > 36) {
+      weather_alert = true;//°C
+      alert_name = "Hitze";
+    }
+    if (data[i].tempMax > 36) {
+      weather_alert = true;//°C
+      alert_name = "Hitze";
+    }
+    if (data[i].tempMin < -9) {
+      weather_alert = true; //°C
+      alert_name = "Kälte";
+    }
+    if (data[i].windSpeed > 25) {
+      weather_alert = true;//m/s = 10 Beaufort
+      alert_name = "Sturm";
+    }
+    if (data[i].pressureGroundLevel < 985) {
+      weather_alert = true;//Low
+      alert_name = "Sturm";
+    }
     if (weather_alert == true) {
-      if (debuging) Serial.println("Alert:");
+      if (debuging) Serial.println("Alert:" + alert_name);
     }
   }
 }
@@ -537,7 +555,7 @@ void display_weather(uint8_t y) {
     display.setFont(ArialMT_Plain_10);
     display.drawString(xd5, yd1, city_name);//City
     display.setFont(ArialMT_Plain_24);
-    display.drawString(xd5, yd11, "Alert"); //Alert
+    display.drawString(xd5, yd11, alert_name); //Alert
     display.display();
   }
 }
