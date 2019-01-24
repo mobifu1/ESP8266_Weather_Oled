@@ -116,7 +116,7 @@ String serial_line_0;//read bytes from serial port 0
 
 // Service
 boolean debuging;
-String version_ = "V1.1.0-r";
+String version_ = "V1.1.1-r";
 //--------------------------------------------------------------------------
 void setup() {
 
@@ -197,6 +197,9 @@ void get_weather_forecasts() {
   client.setAllowedHours(allowedHours, 2);
   uint8_t foundForecasts = client.updateForecastsById(data, OPEN_WEATHER_MAP_APP_ID, OPEN_WEATHER_MAP_LOCATION_ID, MAX_FORECASTS);
 
+  weather_alert = false;
+  alert_name = "";
+
   for (uint8_t i = 0; i < foundForecasts; i++) {
 
     weather_values[i][0] = city_name;
@@ -214,12 +217,13 @@ void get_weather_forecasts() {
     weather_values[i][12] = String(data[i].description);
     weather_values[i][13] = String(data[i].observationTimeText);
 
-    weather_alert = false;
-    alert_name = "";
-
     if (data[i].temp > 36) {
       weather_alert = true;//°C
       alert_name = "Hitze";
+    }
+    if (data[i].temp < -9) {
+      weather_alert = true;//°C
+      alert_name = "Kälte";
     }
     if (data[i].tempMax > 36) {
       weather_alert = true;//°C
@@ -294,7 +298,7 @@ void display_weather(uint8_t y) {
 
   int forcast_index;
   String alert_string;
-  if (weather_alert == true) alert_string = "! ";
+  if (weather_alert == true) alert_string = "(!) ";
   if (weather_alert == false) alert_string = "";
 
   if (y == 0) {
